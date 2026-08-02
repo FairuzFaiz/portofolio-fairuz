@@ -1,12 +1,13 @@
 <?php
 
-// Forward requests to the Laravel bootstrap file
-require __DIR__ . '/../vendor/autoload.php';
+use Illuminate\Http\Request;
 
-// Ensure storage and cache directories exist in /tmp for Vercel
+define('LARAVEL_START', microtime(true));
+
+// 1. Buat folder temporary di /tmp untuk Vercel Serverless
 $storageDirs = [
     '/tmp/storage/framework/views',
-    '/tmp/storage/framework/cache',
+    '/tmp/storage/framework/cache/data',
     '/tmp/storage/framework/sessions',
     '/tmp/storage/logs',
     '/tmp/bootstrap/cache',
@@ -14,25 +15,29 @@ $storageDirs = [
 
 foreach ($storageDirs as $dir) {
     if (!is_dir($dir)) {
-        mkdir($dir, 0755, true);
+        @mkdir($dir, 0755, true);
     }
 }
 
-// Override storage & bootstrap cache paths for Vercel Serverless
+// 2. Set environment storage dan bootstrap cache ke /tmp
 putenv('APP_STORAGE_PATH=/tmp/storage');
 $_ENV['APP_STORAGE_PATH'] = '/tmp/storage';
+putenv('APP_SERVICES_CACHE=/tmp/bootstrap/cache/services.php');
+putenv('APP_PACKAGES_CACHE=/tmp/bootstrap/cache/packages.php');
+putenv('APP_CONFIG_CACHE=/tmp/bootstrap/cache/config.php');
+putenv('APP_ROUTES_CACHE=/tmp/bootstrap/cache/routes.php');
 
+// 3. Load Autoload
+require __DIR__ . '/../vendor/autoload.php';
+
+/** @var \Illuminate\Foundation\Application $app */
 $app = require_once __DIR__ . '/../bootstrap/app.php';
 
-// Bind storage path to /tmp
+// 4. Set storage path ke /tmp
 $app->useStoragePath('/tmp/storage');
 
-$kernel = $app->make(Illuminate\Contracts\Http\Kernel::class);
-
-$response = $kernel->handle(
-    $request = Illuminate\Http\Request::capture()
-);
+// 5. Handle Request secara standar Laravel 11/12
+$request = Request::capture();
+$response = $app->handle($request);
 
 $response->send();
-
-$kernel->terminate($request, $response);
