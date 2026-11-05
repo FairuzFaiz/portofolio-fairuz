@@ -37,24 +37,44 @@
                 @php
                     $files = array_diff(scandir($fullPath), ['.', '..']);
                 @endphp
-                @if(count($files) > 0)
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                @if(count($files) > 1)
+                    <!-- Masonry columns layout: menyesuaikan proporsi alami setiap gambar tanpa gap/space kosong -->
+                    <div class="columns-1 md:columns-2 gap-6 space-y-6">
                         @foreach($files as $file)
-                            <div class="relative rounded-3xl overflow-hidden shadow-2xl border border-slate-700/50 group">
-                                <div class="absolute inset-0 bg-gradient-to-t from-slate-900/60 to-transparent z-10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                                <img src="{{ $webPath . '/' . $file }}" alt="{{$project->title}}" class="w-full h-auto object-cover transform group-hover:scale-105 transition-transform duration-500">
+                            <div class="break-inside-avoid rounded-2xl overflow-hidden shadow-xl border border-slate-700/50 bg-slate-800/40 group relative transition-all duration-300 hover:border-blue-500/40">
+                                <a href="{{ $webPath . '/' . $file }}" target="_blank" title="Klik untuk lihat ukuran penuh" class="block relative">
+                                    <img src="{{ $webPath . '/' . $file }}" 
+                                         alt="{{$project->title}}" 
+                                         loading="lazy"
+                                         class="w-full h-auto object-contain block transform group-hover:scale-[1.01] transition-transform duration-300">
+                                    <div class="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
+                                        <span class="px-4 py-2 bg-slate-900/80 text-white text-xs font-semibold rounded-full border border-slate-600 backdrop-blur-sm flex items-center gap-2">
+                                            <svg class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                            Lihat Gambar Penuh
+                                        </span>
+                                    </div>
+                                </a>
                             </div>
                         @endforeach
                     </div>
+                @elseif(count($files) === 1)
+                    <!-- Single file in folder -->
+                    <div class="rounded-2xl overflow-hidden shadow-2xl border border-slate-700/50 bg-slate-800/40 p-2">
+                        <a href="{{ $webPath . '/' . reset($files) }}" target="_blank" class="block">
+                            <img src="{{ $webPath . '/' . reset($files) }}" alt="{{$project->title}}" class="w-full h-auto object-contain rounded-xl block mx-auto">
+                        </a>
+                    </div>
                 @else
-                    <div class="relative rounded-3xl overflow-hidden shadow-2xl border border-slate-700/50 bg-slate-800 flex items-center justify-center aspect-video">
-                        <p class="text-slate-500 font-outfit text-xl">Image coming soon</p>
+                    <div class="relative rounded-2xl overflow-hidden shadow-2xl border border-slate-700/50 bg-slate-800/50 flex items-center justify-center p-12">
+                        <img src="/uploads/placeholder.png" alt="Preview Placeholder" class="w-full max-w-md h-auto object-contain rounded-xl opacity-75">
                     </div>
                 @endif
             @else
-                <div class="relative rounded-3xl overflow-hidden shadow-2xl border border-slate-700/50">
-                    <div class="absolute inset-0 bg-gradient-to-t from-slate-900/60 to-transparent z-10"></div>
-                    <img src="{{ $webPath }}" alt="{{$project->title}}" class="w-full h-auto max-h-[70vh] object-cover">
+                <!-- Single Image File -->
+                <div class="rounded-2xl overflow-hidden shadow-2xl border border-slate-700/50 bg-slate-800/40 p-2">
+                    <a href="{{ $webPath }}" target="_blank" class="block">
+                        <img src="{{ $webPath }}" alt="{{$project->title}}" class="w-full h-auto object-contain rounded-xl block mx-auto">
+                    </a>
                 </div>
             @endif
         </div>
@@ -80,15 +100,31 @@
                         <div>
                             <p class="text-sm text-slate-500 font-semibold mb-1">Tools</p>
                             <div class="flex flex-wrap gap-2 mt-2">
-                                @if(stripos($project->category, 'ui') !== false || stripos($project->category, 'ux') !== false)
+                                @php
+                                    $toolList = !empty($project->tools) ? array_map('trim', explode(',', $project->tools)) : [];
+                                @endphp
+                                @if(count($toolList) > 0)
+                                    @foreach($toolList as $tool)
+                                        <span class="px-3 py-1 bg-blue-500/10 border border-blue-500/20 text-blue-300 text-xs rounded-full font-medium">{{ $tool }}</span>
+                                    @endforeach
+                                @elseif(stripos($project->category, 'ui') !== false || stripos($project->category, 'ux') !== false)
                                     <span class="px-3 py-1 bg-slate-700 text-slate-300 text-xs rounded-full">Figma</span>
                                     <span class="px-3 py-1 bg-slate-700 text-slate-300 text-xs rounded-full">Prototyping</span>
+                                @elseif(stripos($project->category, 'web') !== false)
+                                    <span class="px-3 py-1 bg-blue-500/10 border border-blue-500/20 text-blue-300 text-xs rounded-full">WordPress</span>
+                                    <span class="px-3 py-1 bg-blue-500/10 border border-blue-500/20 text-blue-300 text-xs rounded-full">cPanel</span>
                                 @else
                                     <span class="px-3 py-1 bg-slate-700 text-slate-300 text-xs rounded-full">Canva</span>
                                     <span class="px-3 py-1 bg-slate-700 text-slate-300 text-xs rounded-full">Graphic Design</span>
                                 @endif
                             </div>
                         </div>
+                        @if($project->client)
+                        <div>
+                            <p class="text-sm text-slate-500 font-semibold mb-1">Client</p>
+                            <p class="text-white">{{ $project->client }}</p>
+                        </div>
+                        @endif
                         <div>
                             <p class="text-sm text-slate-500 font-semibold mb-1">Date</p>
                             <p class="text-white">{{ $project->created_at->format('M d, Y') }}</p>

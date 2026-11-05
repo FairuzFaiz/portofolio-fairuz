@@ -100,8 +100,10 @@
                                 if (count($files) > 0) {
                                     $firstImage = $webPath . '/' . reset($files);
                                 } else {
-                                    $firstImage = null;
+                                    $firstImage = '/uploads/placeholder.png';
                                 }
+                            } elseif (!file_exists($fullPath)) {
+                                $firstImage = '/uploads/placeholder.png';
                             }
                         @endphp
                         @if($firstImage)
@@ -134,4 +136,6 @@
                 @endforeach
             </div>
         </section>
+    </div>
+</div>
 @endsection

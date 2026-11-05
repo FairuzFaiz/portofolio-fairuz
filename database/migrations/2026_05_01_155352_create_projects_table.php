@@ -17,6 +17,7 @@ return new class extends Migration
         $table->text('description');
         $table->string('image')->nullable();
         $table->string('category');
+        $table->string('tools')->nullable();
 
         // TAMBAHAN LO
         $table->string('client')->nullable();

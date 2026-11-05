@@ -15,8 +15,9 @@
 
         <!-- Filter Category -->
         <div class="flex justify-center mb-12" data-aos="fade-up">
-            <div class="inline-flex bg-slate-800/80 backdrop-blur-md p-1.5 rounded-full border border-slate-700/50">
+            <div class="flex flex-wrap justify-center gap-2 bg-slate-800/80 backdrop-blur-md p-1.5 rounded-full border border-slate-700/50">
                 <button class="filter-btn active px-6 py-2 rounded-full text-sm font-semibold transition-all duration-300 text-white bg-blue-500 shadow-md" data-filter="all">All Projects</button>
+                <button class="filter-btn px-6 py-2 rounded-full text-sm font-semibold transition-all duration-300 text-slate-400 hover:text-white" data-filter="Web Development">Web Development</button>
                 <button class="filter-btn px-6 py-2 rounded-full text-sm font-semibold transition-all duration-300 text-slate-400 hover:text-white" data-filter="UI/UX">UI/UX Design</button>
                 <button class="filter-btn px-6 py-2 rounded-full text-sm font-semibold transition-all duration-300 text-slate-400 hover:text-white" data-filter="Graphic Design">Graphic Design</button>
             </div>
@@ -38,8 +39,10 @@
                                 if (count($files) > 0) {
                                     $firstImage = $webPath . '/' . reset($files);
                                 } else {
-                                    $firstImage = null;
+                                    $firstImage = '/uploads/placeholder.png';
                                 }
+                            } elseif (!file_exists($fullPath)) {
+                                $firstImage = '/uploads/placeholder.png';
                             }
                         @endphp
                         @if($firstImage)
@@ -110,7 +113,10 @@
                     const category = item.getAttribute('data-category').toLowerCase();
                     const filterLower = filterValue.toLowerCase();
                     
-                    if (filterValue === 'all' || category.includes(filterLower) || (filterLower === 'ui/ux' && category.includes('ui'))) {
+                    if (filterValue === 'all' || 
+                        category.includes(filterLower) || 
+                        (filterLower === 'ui/ux' && (category.includes('ui') || category.includes('ux'))) ||
+                        (filterLower === 'web development' && category.includes('web'))) {
                         item.style.display = 'block';
                         // Re-trigger AOS slightly
                         setTimeout(() => item.classList.add('aos-animate'), 50);

@@ -8,7 +8,16 @@ class ProjectController extends Controller
 {
     public function home()
     {
-        $projects = Project::whereIn('title', ['UniEarn Platform', 'Sistem Informasi PT Katiga Veritas', 'Luxure Personalization Programme'])->get();
+        $projects = Project::whereIn('title', [
+            'Halloka - SaaS AI & Bio Link', 
+            'Sekolah Bina Auladi - Website RA & SDIT', 
+            'UniEarn Platform'
+        ])->get();
+
+        if ($projects->count() < 3) {
+            $projects = Project::take(3)->get();
+        }
+
         return view('home', compact('projects'));
     }
 
